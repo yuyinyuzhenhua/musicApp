@@ -1,6 +1,7 @@
 <template>
   <div class="singer" ref="singer">
-      <list-view :data="singers"></list-view>
+      <list-view @select="selectSinger" :data="singers"></list-view>
+      <router-view></router-view>
   </div>
 </template>
 
@@ -8,8 +9,10 @@
     import ListView from 'base/listView/listView'
     import {getSingerList}  from 'api/singer'
     import Singer from 'common/js/singer'
-
-    const ERR_OK = 0
+    import {ERR_OK} from 'api/config'
+    import {mapMutations} from 'vuex'
+    
+    
     const HOT_SINGER_LEN = 10
     const HOT_NAME = '热门'
 
@@ -29,7 +32,7 @@
           getSingerList().then((res) => {
             if (res.code === ERR_OK) {
               this.singers = this._normalizeSinger(res.data.list)
-              console.log(this.singers)
+              // console.log(this.singers)
             }
           })
         },
@@ -76,7 +79,16 @@
             return a.title.charCodeAt(0) - b.title.charCodeAt(0)
           })
           return hot.concat(ret)
-        }
+        },
+        ...mapMutations({
+          setSinger: 'SET_SINGER'  //vuex提供的语法糖，映射到mutation-types
+        }),
+        selectSinger(singer) {
+          this.$router.push({
+            path:`/singer/${singer.id}/`
+          })
+          this.setSinger(singer)  //修改  写入
+        },
       },
       components: {
         ListView
