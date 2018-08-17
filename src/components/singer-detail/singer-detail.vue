@@ -1,6 +1,6 @@
 <template>
   <transition name="slide">
-      <music-list ></music-list>
+      <music-list :title="title" :bg-image="bgImage" :songs="songs"></music-list>
   </transition>
 </template>
 
@@ -52,8 +52,11 @@
             _normalizeSongs(list) {
                 let ret = []
                 list.forEach((item) => {
-                    let {musicData} = item
+                    let {musicData} = item   //es6对象解构赋值，相当于  let musicData = item.musicData
                     if (musicData.songid && musicData.albummid) {
+                        // console.log(musicData);
+                        // console.log(musicData.singer);
+                        // console.log(musicData.singer instanceof Array);
                         ret.push(createSong(musicData))
                     }
                 })
@@ -63,7 +66,7 @@
     }
 </script>
 
-
+ 
 <style scoped lang="stylus" rel="stylesheet/stylus">
   .slide-enter-active, .slide-leave-active
     transition: all 0.3s

@@ -2,7 +2,7 @@ import {getLyric} from 'api/song'
 import {ERR_OK} from 'api/config'
 import {Base64} from 'js-base64'
 
-export default class song {
+export default class Song {
     constructor({id, mid, singer, name, album, duration, image, url}) {
         this.id = id
         this.mid = mid
@@ -32,9 +32,9 @@ export default class song {
     }
 }
 
-
+// 工厂
 export function createSong(musicData) {
-    return new createSong({
+    return new Song({   //实例化
         id: musicData.songid,
         mid: musicData.songmid,
         singer: filterSinger(musicData.singer),
