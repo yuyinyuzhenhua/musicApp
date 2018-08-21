@@ -14,7 +14,7 @@
         <div class="filter" ref="filter"></div> 
       </div>
       <div class="bg-layer" ref="layer"></div>
-      <scroll :data="songs" 
+      <scroll :data="songs"  @scroll = "scroll"
               :listen-scroll="listenScroll" :probe-type="probeType" class="list" ref="list">
         <div class="song-list-wrapper">
           <song-list :songs="songs" :rank="rank"></song-list>
@@ -32,7 +32,8 @@
   import Scroll from 'base/scroll/scroll'
   import Loading from 'base/loading/loading'
   import SongList from 'base/song-list/song-list'
-    
+  
+  const RESERVED_HEIGHT = 40
 
     export default{
         props:{
@@ -57,6 +58,11 @@
           this.probeType = 3
           this.listenScroll = true
         },
+        mounted() {
+          this.imageHeight = this.$refs.bgImage.clientHeight
+          this.minTranslateY = -this.imageHeight + RESERVED_HEIGHT
+          this.$refs.list.$el.style.top = `${this.imageHeight}px`
+        },
         data() {
           return {
             scrollY: 0
@@ -65,6 +71,9 @@
         methods:{
             back() {
                 this.$router.back()
+            },
+            scroll(pos) {
+              this.scrollY = pos.y
             }
         },
         computed: {
@@ -76,6 +85,41 @@
           Scroll,
           SongList,
           Loading
+        },
+        watch: {
+          scrollY(newY) {
+            let zIndex = 0;
+            let scale = 1
+            let blur = 0
+            const percent = Math.abs(newY / this.imageHeight)
+// 如果向下滑动（即newY > 0）的时候，就放大; 向上滑动就增加模糊
+            if (newY > 0) {
+              scale = 1 + percent
+              zIndex = 10
+            } else {
+              blur = Math.min(20, precent*20)
+            }
+
+            // 当layer层滑到比背景图-40  还要小的时候，就让layer层不要动，待在那（记住偏移是负值）
+            let translateY = Math.max(this.minTranslateY,newY);
+            this.$refs.layer.style['transform'] =  `translate3d(0,${translateY}px,0)`
+            
+
+// 滑到上面的时候，改变背景图的zindex，使图片盖住文字，并且要改变图片的高度，要不然，就像文字滑不上去；顺便改变  随机播放按钮的文字显示隐藏
+            if(newY < this.minTranslateY) {
+              zIndex = 10
+              this.$refs.bgImage.style.paddingTop = 0
+              this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`
+              this.$refs.playBtn.style.display = 'none'
+            } else {
+              this.$refs.bgImage.style.paddingTop = '70%'
+              this.$refs.bgImage.style.height = 0
+              this.$refs.playBtn.style.display = ''
+            }
+
+            this.$refs.bgImage.style['transform'] = `scale(${scale})`
+            this.$refs.bgImage.style.zIndex = zIndex
+          }
         }
     }
 </script>
