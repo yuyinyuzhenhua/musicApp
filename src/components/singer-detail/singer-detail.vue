@@ -54,9 +54,6 @@
                 list.forEach((item) => {
                     let {musicData} = item   //es6对象解构赋值，相当于  let musicData = item.musicData
                     if (musicData.songid && musicData.albummid) {
-                        // console.log(musicData);
-                        // console.log(musicData.singer);
-                        // console.log(musicData.singer instanceof Array);
                         ret.push(createSong(musicData))
                     }
                 })

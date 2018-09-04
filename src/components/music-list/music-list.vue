@@ -17,7 +17,7 @@
       <scroll :data="songs"  @scroll = "scroll"
               :listen-scroll="listenScroll" :probe-type="probeType" class="list" ref="list">
         <div class="song-list-wrapper">
-          <song-list :songs="songs" :rank="rank"></song-list>
+          <song-list @select="selectItem" :songs="songs" :rank="rank"></song-list>
         </div>
         <div v-show="!songs.length" class="loading-container">
           <loading></loading>
@@ -32,6 +32,7 @@
   import Scroll from 'base/scroll/scroll'
   import Loading from 'base/loading/loading'
   import SongList from 'base/song-list/song-list'
+  import {mapActions} from 'vuex'
   
   const RESERVED_HEIGHT = 40
 
@@ -74,7 +75,17 @@
             },
             scroll(pos) {
               this.scrollY = pos.y
-            }
+            },
+            selectItem(item, index) {
+              // 点击之后：设置playlist,sequenceList,根据点击的索引设置currentSong,playstate,还有fullScreen 设置这些数据就是要提交mutations 在一个动作中多次改变mutations,往往要封装一个actions
+              this.selectPlay({
+                list:this.songs,
+                index
+              })
+            },
+            ...mapActions([
+              'selectPlay'
+            ])
         },
         computed: {
           bgStyle() {
@@ -97,7 +108,7 @@
               scale = 1 + percent
               zIndex = 10
             } else {
-              blur = Math.min(20, precent*20)
+              blur = Math.min(20, percent*20)
             }
 
             // 当layer层滑到比背景图-40  还要小的时候，就让layer层不要动，待在那（记住偏移是负值）
